@@ -1,6 +1,6 @@
 // ==========================================
 //  ZoroJS — Lightweight Reactive Library
-//  Version: 0.1.0 (Beta)
+//  Version: 0.1.1 (Beta)
 //  License: MIT
 //  Built by Zoro Core
 //  No build step, no dependencies
@@ -109,7 +109,7 @@ function createApp(config) {
     const TYPES = ['state', 'computed', 'ref']
 
     // Danh sách các binding đã tìm thấy trong DOM
-    const bindings = { refs: [], texts: [], htmls: [], shows: [], syncs: [] }
+    const bindings = { texts: [], htmls: [], shows: [], syncs: [] }
 
     let rafId = null // requestAnimationFrame ID để batch update
     let root = null // DOM element gốc của app
@@ -144,12 +144,6 @@ function createApp(config) {
     function render() {
         if (rafId) cancelAnimationFrame(rafId)
         rafId = requestAnimationFrame(() => {
-            // --- z-ref ---
-            for (const bind of bindings.refs) {
-                const el = root.querySelector(`[z-ref='${bind.key}']`)
-                if (el && ctx[bind.key] && ctx[bind.key]._type === 'ref' && ctx[bind.key].value !== el)
-                    ctx[bind.key].value = el
-            }
             // --- :text ---
             for (const bind of bindings.texts) {
                 const val = evaluate(bind.expr)
@@ -184,8 +178,11 @@ function createApp(config) {
             root = document.querySelector(selector)
             if (!root) return console.error('ZoroJS: not found:', selector)
 
-            // --- scan directive ---
-            root.querySelectorAll('[z-ref]').forEach((el) => bindings.refs.push({ key: el.getAttribute('z-ref') }))
+            // --- z-ref (init once) ---
+            root.querySelectorAll('[z-ref]').forEach((el) => {
+                const key = el.getAttribute('z-ref')
+                if (ctx[key]?._type === 'ref') ctx[key].value = el // gán DOM element vào ref
+            })
             root.querySelectorAll('[\\:text]').forEach((el) =>
                 bindings.texts.push({ el, expr: el.getAttribute(':text') }),
             )
