@@ -300,7 +300,7 @@ ZoroJS là dự án mở, bạn có thể:
 
 ## 📄 Giấy phép
 
-MIT License © 2024 Zoro Core
+MIT License © 2026 Zoro Core
 
 ---
 
